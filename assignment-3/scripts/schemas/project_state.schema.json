@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambush/schemas/project_state.json",
+  "title": "Project State",
+  "description": "Shared cross-task snapshot. HQ-only write; every worker reads before a task. See CLAUDE.md § Shared project state.",
+  "type": "object",
+  "required": ["updated_at", "updated_by", "schema_version", "assets", "approvals", "blocked", "decisions", "open_tasks"],
+  "properties": {
+    "updated_at":     { "type": "string" },
+    "updated_by":     { "const": "hq" },
+    "schema_version": { "type": "integer", "minimum": 1 },
+    "assets":         { "type": "object" },
+    "approvals":      { "type": "object" },
+    "blocked": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["item", "owner", "reason"],
+        "properties": {
+          "item":            { "type": "string" },
+          "owner":           { "type": "string" },
+          "reason":          { "type": "string" },
+          "unblocks_tasks":  { "type": "array", "items": { "type": "string" } }
+        }
+      }
+    },
+    "decisions": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["date", "topic"],
+        "properties": {
+          "date":  { "type": "string", "pattern": "^\\d{4}-\\d{2}-\\d{2}$" },
+          "topic": { "type": "string", "minLength": 1 },
+          "ref":   { "type": "string" }
+        }
+      }
+    },
+    "open_tasks": { "type": "array", "items": { "type": "string" } }
+  }
+}

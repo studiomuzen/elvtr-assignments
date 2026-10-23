@@ -1,0 +1,34 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambush/schemas/terrain_speed.json",
+  "title": "Terrain Speed",
+  "description": "Movement-speed multipliers per (terrain, chassis). Consumed by Assets/Scripts/Game/TerrainSpeed.cs.",
+  "type": "object",
+  "required": ["defaults", "terrain"],
+  "properties": {
+    "_doc": { "oneOf": [ { "type": "string" }, { "type": "array", "items": { "type": "string" } } ] },
+    "defaults": {
+      "type": "object",
+      "required": ["infantry", "tracked", "wheeled"],
+      "properties": {
+        "infantry": { "type": "number", "exclusiveMinimum": 0 },
+        "tracked":  { "type": "number", "exclusiveMinimum": 0 },
+        "wheeled":  { "type": "number", "exclusiveMinimum": 0 }
+      },
+      "additionalProperties": false
+    },
+    "terrain": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "infantry": { "type": "number", "exclusiveMinimum": 0 },
+          "tracked":  { "type": "number", "exclusiveMinimum": 0 },
+          "wheeled":  { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

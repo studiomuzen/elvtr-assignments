@@ -1,0 +1,16 @@
+{
+  "task_id": "001bada-protected-path-audit",
+  "agent": "sentry",
+  "status": "done",
+  "outputs": [
+    ".claude/reports/sentry-001bada-protected-path-audit.md"
+  ],
+  "evidence": [
+    "sentry_report:.claude/reports/sentry-001bada-protected-path-audit.md",
+    "test_result:git-diff-audit-pass",
+    "test_result:non-hq-subagent-count=0"
+  ],
+  "notes": "10 of 12 files in commit 001bada are protected paths; all are hq-authored. 0 non-HQ sub-agents spawned in the task window. Verdict: PASS.",
+  "model": "opus",
+  "timestamp": "2026-10-23T22:52:00+00:00"
+}

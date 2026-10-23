@@ -1,0 +1,37 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambush/schemas/map_manifest.json",
+  "title": "Map manifest (legacy — pre-fixed-5-levels format)",
+  "description": "OSM-sourced village-outskirts map data. Legacy format; new work lives at levels/<id>.json instead.",
+  "type": "object",
+  "required": ["displayName", "villageName", "osmSource"],
+  "properties": {
+    "displayName": { "type": "string", "minLength": 1 },
+    "villageName": { "type": "string", "minLength": 1 },
+    "oblast":      { "type": "string" },
+    "country":     { "type": "string" },
+    "osmSource": {
+      "type": "object",
+      "properties": {
+        "note":              { "type": "string" },
+        "overpassQuery":     { "type": "string" },
+        "overpassUrl":       { "type": "string" },
+        "overpassMirror":    { "type": "string" },
+        "mainRoadOsmWayId":  { "type": "integer" },
+        "mainRoadOsmWayUrl": { "type": "string" },
+        "villageOsmRelationUrl": { "type": "string" },
+        "boundingBox": {
+          "type": "object",
+          "required": ["south", "west", "north", "east"],
+          "properties": {
+            "south": { "type": "number" },
+            "west":  { "type": "number" },
+            "north": { "type": "number" },
+            "east":  { "type": "number" }
+          }
+        },
+        "retrievedUtc":  { "type": "string" }
+      }
+    }
+  }
+}

@@ -1,0 +1,18 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambush/schemas/message.json",
+  "title": "Structured handoff message",
+  "description": "Worker → HQ structured handoff. One file per (task_id, agent). HQ rejects any message with empty / unresolvable evidence. See CLAUDE.md § Structured handoff messages.",
+  "type": "object",
+  "required": ["task_id", "agent", "status", "outputs", "evidence", "notes", "model", "timestamp"],
+  "properties": {
+    "task_id":   { "type": "string", "minLength": 1 },
+    "agent":     { "enum": ["forge", "ledger", "painter", "painter-b", "cartographer", "sentry", "playtest", "hq"] },
+    "status":    { "enum": ["done", "failed", "blocked"] },
+    "outputs":   { "type": "array", "items": { "type": "string" } },
+    "evidence":  { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+    "notes":     { "type": "string" },
+    "model":     { "enum": ["haiku", "sonnet", "opus"] },
+    "timestamp": { "type": "string" }
+  }
+}

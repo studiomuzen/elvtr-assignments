@@ -1,0 +1,13 @@
+{
+  "task_id": "225-redo-abrams",
+  "agent": "painter",
+  "status": "blocked",
+  "outputs": [],
+  "evidence": [
+    "snapshot:art-source/orientation.json entry for Abrams reads { \"angle\": 112.5, \"frame\": 5, \"picked_at\": \"2026-10-23T14:37:20+00:00\" } but has no upright_euler_deg field, so the render script falls back to identity.",
+    "snapshot:.claude/state/project.json blocked[0] = { \"item\": \"vehicle_render_full_16_directions\", \"owner\": \"user\", \"reason\": \"Awaiting user upright hand-correction in art-source/orient_all.blend. Render script must read rotations from the .blend, not from auto-detect.\" }"
+  ],
+  "notes": "Task spec says 'redo Abrams sprite sheet' but project.json.blocked[0] explicitly blocks all 17 vehicle redos on the user hand-correction in orient_all.blend. The .blend has not been saved with hand-corrected rotations yet (every <Name>_root empty is still (0,0,0) per the baseline Blender headless dump). Not safe to re-render without the ground truth. HQ should either (a) confirm the user has saved rotations, (b) rewrite this spec to render against the current identity rotations, or (c) leave the task deferred until the block clears.",
+  "model": "opus",
+  "timestamp": "2026-10-23T22:40:00+00:00"
+}

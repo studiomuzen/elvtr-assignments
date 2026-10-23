@@ -1,0 +1,20 @@
+{
+  "task_id": "307-levels-scene-densification",
+  "agent": "cartographer",
+  "status": "done",
+  "outputs": [
+    "ELVATR GAME 1/Assets/Scenes/Level_01_village_edge.unity",
+    "ELVATR GAME 1/Assets/Scenes/Level_03_industrial.unity",
+    "ELVATR GAME 1/Assets/Scenes/Level_04_fields_river.unity",
+    "ELVATR GAME 1/Assets/Scenes/Level_05_wooded_hills.unity"
+  ],
+  "evidence": [
+    ".claude/handoffs/307-cartographer-final.md",
+    "test_result:json-tool-pass",
+    "read_console:clean",
+    "snapshot:L_01 pre-change — Ground + Level_01 + PlayerZone + EnemyZone + Village (0 children) + 4 BoundaryX (no children). Scene cleanly loaded, no errors. Post-change — Village/Houses with 12 cube houses added, BuildingBody.mat, 6-12m footprints."
+  ],
+  "notes": "Instantiated geometry each manifest already declared. L_01 Village/Houses: 12 BuildingBody cubes at the diagonal-road layout. L_03 Boundaries: 4 BoundaryGray strips at X=±450 and Z=±450. L_04 Trees: 15 TreeTrunk capsules scattered off the Z=0 river band. L_05 Terrain_Features: Road + Ravine + 19 TreeClumps (3-5 capsules each) + 2 Clearings. All materials reused from Assets/Materials — no new assets created. Pre-existing Level_01 'Broken text PPtr' warnings from an earlier cartographer scene build are unrelated and still present (flagged for a future cleanup pass).",
+  "model": "opus",
+  "timestamp": "2026-10-23T20:30:00+00:00"
+}

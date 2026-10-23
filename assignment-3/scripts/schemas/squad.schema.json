@@ -1,0 +1,41 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "type": "object",
+  "required": ["displayName", "soldiers"],
+  "additionalProperties": false,
+  "properties": {
+    "displayName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "soldiers": {
+      "type": "array",
+      "minItems": 5,
+      "maxItems": 5,
+      "items": {
+        "type": "object",
+        "required": ["callsign", "maxHealth"],
+        "additionalProperties": false,
+        "properties": {
+          "callsign": {
+            "type": "string",
+            "minLength": 1
+          },
+          "maxHealth": {
+            "type": "number",
+            "exclusiveMinimum": 0
+          }
+        }
+      }
+    },
+    "specialist": {
+      "type": "string",
+      "enum": ["", "Rifleman", "Exosuit", "HeavyWeapons", "DroneOperator", "Engineer"]
+    },
+    "specialistIndex": {
+      "type": "integer",
+      "minimum": 0,
+      "maximum": 4
+    }
+  }
+}

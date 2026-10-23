@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://ambush/schemas/level.json",
+  "title": "Fixed Level Manifest",
+  "description": "One of the five hand-built levels. Lives at Assets/Data/levels/<id>.json. Scene parent is Level_<id>_<slug>.unity.",
+  "type": "object",
+  "required": ["id", "name", "scene", "osm_source", "playable", "player_zone", "enemy_zone"],
+  "properties": {
+    "id":    { "type": "string", "pattern": "^\\d{2}$" },
+    "name":  { "type": "string", "minLength": 1 },
+    "scene": { "type": "string", "pattern": "^Level_\\d{2}_[a-z_]+$" },
+    "osm_source": {
+      "type": "object",
+      "required": ["name", "url"],
+      "properties": {
+        "name":        { "type": "string", "minLength": 1 },
+        "relation_id": { "type": "string" },
+        "way_id":      { "type": "string" },
+        "url":         { "type": "string", "pattern": "^https://www\\.openstreetmap\\.org/.+" }
+      }
+    },
+    "playable": {
+      "type": "object",
+      "required": ["x_min", "x_max", "z_min", "z_max"],
+      "properties": {
+        "x_min": { "type": "number" },
+        "x_max": { "type": "number" },
+        "z_min": { "type": "number" },
+        "z_max": { "type": "number" }
+      }
+    },
+    "buffer_m": { "type": "number", "minimum": 0 },
+    "player_zone": {
+      "type": "object",
+      "required": ["center", "size"],
+      "properties": {
+        "center": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+        "size":   { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 }
+      }
+    },
+    "enemy_zone": {
+      "type": "object",
+      "required": ["center", "size"],
+      "properties": {
+        "center": { "type": "array", "items": { "type": "number" }, "minItems": 3, "maxItems": 3 },
+        "size":   { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 }
+      }
+    },
+    "cover_points": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": ["x", "z"],
+            "properties": {
+              "x":   { "type": "number" },
+              "z":   { "type": "number" },
+              "tag": { "type": "string" }
+            }
+          },
+          {
+            "type": "object",
+            "required": ["type", "position"],
+            "properties": {
+              "type":        { "enum": ["hedgerow", "tree_line", "tree_clump", "wall", "concrete_wall", "ravine", "trench", "building", "road", "bridge", "clearing", "cargo_stack", "factory_hall", "rail_siding"] },
+              "position":    { "type": "array", "items": { "type": "number" }, "minItems": 2, "maxItems": 3 },
+              "length":      { "type": "number" },
+              "size":        { "type": "array", "items": { "type": "number" }, "minItems": 1, "maxItems": 3 },
+              "orientation": { "type": "string" },
+              "radius":      { "type": "number" }
+            }
+          }
+        ]
+      }
+    }
+  }
+}

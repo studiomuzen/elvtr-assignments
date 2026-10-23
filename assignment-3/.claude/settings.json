@@ -1,0 +1,53 @@
+{
+  "hooks": {
+    "SubagentStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/muzen/Projects/ELVTR/dashboard/hooks/log_event.py --event SubagentStart"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/muzen/Projects/ELVTR/dashboard/hooks/log_event.py --event SubagentStop"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/muzen/Projects/ELVTR/dashboard/hooks/log_event.py --event PreToolUse"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/muzen/Projects/ELVTR/dashboard/hooks/log_event.py --event PostToolUse"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "/Users/muzen/Projects/ELVTR/.claude/hooks/validate_write_or_edit.py"
+          }
+        ]
+      }
+    ]
+  }
+}
