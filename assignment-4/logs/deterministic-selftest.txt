@@ -1,0 +1,12 @@
+CAUGHT  assault     transport unloads at 200 m    -> rule: north_road_push/N1_TR1: unload_m 200 outside GDD 06 300–600 m
+CAUGHT  assault     infantry wave first           -> rule: north_road_push: first wave phase is MechanizedInfantry; GDD 06 armour leads, so wave 1 must be VehicleA
+CAUGHT  assault     unit cap broken (18 units)    -> rule: north_road_push: 21 commandable units; GDD 03 unit cap is 10 to 15 per side
+CAUGHT  assault     unknown template              -> schema: $.manifests[0].waves[0].units[0].template: 'Abrams' is not one of ['EnemyAA_1', 'EnemyEWTruck', 'Enemy
+CAUGHT  unit_cards  HMG range 300                 -> rule: heavy_mg_squad/M240B machine gun: range_m 300 ≠ GDD 04 hmg range 220
+CAUGHT  unit_cards  HMG hurts tanks               -> rule: heavy_mg_squad/M240B machine gun: HMG must damage light armour and not heavy (decision 5)
+CAUGHT  battle_text phase missing                 -> schema: $.phase_radio: 'Bombardment' is a required property
+CAUGHT  battle_text placeholder text              -> rule: $.event_log.drone_hit[0]: placeholder/generic word in 'TODO drone line'
+CAUGHT  battle_text exclamation / tone            -> rule: $.phase_radio.Intel[0]: exclamation mark — the tone is grounded and serious (GDD 01)
+CAUGHT  battle_text routing line without victory  -> rule: routing_message must carry 'victory is near' (decision 29)
+
+10/10 broken inputs caught

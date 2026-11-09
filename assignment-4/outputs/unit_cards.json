@@ -1,0 +1,74 @@
+{
+  "cards": [
+    {
+      "id": "javelin_team",
+      "name": "Javelin Team",
+      "side": "UA",
+      "role": "Anti-armour ambush team",
+      "soldiers": 5,
+      "hp_per_soldier": 100,
+      "weapons": [
+        {
+          "name": "FGM-148 Javelin",
+          "kind": "atgm",
+          "range_m": 300,
+          "damage_vs_soft": 60,
+          "damage_vs_light": 150,
+          "damage_vs_heavy": 300,
+          "reload_s": 30
+        }
+      ],
+      "strong_against": [
+        "light",
+        "heavy"
+      ],
+      "weak_against": [
+        "infantry",
+        "drones",
+        "artillery",
+        "enemy inside 100 m (loses concealment)"
+      ],
+      "card_text": "Concealed anti-tank team with one Javelin specialist. Holds fire until armour is inside 300 m, then kills tanks and IFVs. Reloads slowly and is helpless once infantry or drones find it."
+    },
+    {
+      "id": "heavy_mg_squad",
+      "name": "Heavy Machine-Gun Squad",
+      "side": "UA",
+      "role": "Suppression and light-armour support",
+      "soldiers": 5,
+      "hp_per_soldier": 100,
+      "weapons": [
+        {
+          "name": "M240B machine gun",
+          "kind": "hmg",
+          "range_m": 220,
+          "damage_vs_soft": 40,
+          "damage_vs_light": 25,
+          "damage_vs_heavy": 0,
+          "reload_s": 6
+        },
+        {
+          "name": "M4 carbine",
+          "kind": "rifle",
+          "range_m": 180,
+          "damage_vs_soft": 10,
+          "damage_vs_light": 0,
+          "damage_vs_heavy": 0,
+          "reload_s": 2
+        }
+      ],
+      "strong_against": [
+        "infantry",
+        "soft",
+        "light"
+      ],
+      "weak_against": [
+        "heavy armour",
+        "drones",
+        "artillery",
+        "flanking infantry"
+      ],
+      "card_text": "Suppression squad that pins infantry and damages trucks, IFVs and APCs inside 220 m. Cannot hurt tanks. Slow to relocate, so it needs cover and fears drones and artillery."
+    }
+  ]
+}

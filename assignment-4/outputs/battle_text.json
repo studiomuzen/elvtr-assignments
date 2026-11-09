@@ -1,0 +1,80 @@
+{
+  "briefing": {
+    "title": "Assault on the Line",
+    "lines": [
+      "Company commander, listen up. Enemy assault expected on our sector within minutes.",
+      "Armour leads, then transports with mechanised infantry. Expect drones and artillery first.",
+      "Your orders: Forward, Hold, Back, Retreat. Use drones on armour, rifles on infantry.",
+      "Stay in cover and stay concealed. Do not let one enemy unit into the deployment zone."
+    ]
+  },
+  "phase_radio": {
+    "Intel": [
+      "HQ to all units: enemy column massing beyond the ridge. Assault is coming.",
+      "Recon counts armour and transports in the column. Infantry rides behind the tanks.",
+      "Expect the main axis along the road toward our centre."
+    ],
+    "Scouting": [
+      "Enemy scout drones over the line. Keep your heads down.",
+      "Revealed units are being tracked. Hold or fall back.",
+      "Scout drones reveal at 150 metres. Do not move in the open."
+    ],
+    "Bombardment": [
+      "Artillery on revealed positions. Stay in cover and ride it out.",
+      "Concealed squads are not on their target list. Revealed ones are.",
+      "Recon reports guns are firing from beyond our range.",
+      "Shelling will lift as the armour closes. Expect engines next."
+    ],
+    "VehicleAdvance": [
+      "Armour on the road, closing fast. Save drones and anti-tank for the vehicles.",
+      "Rifles will not stop armour. Use anti-tank teams and drones.",
+      "Light armour is exposed to heavy machine guns. Hold the line.",
+      "Anti-tank teams hold fire until vehicles are in range."
+    ],
+    "MechanizedInfantry": [
+      "Transports behind the armour. They will stop and unload 300 to 600 metres out.",
+      "Drones can still reach them before they dismount. Strike the transports.",
+      "Infantry dismounting, coming on foot. Hold the line with rifles.",
+      "Enemy infantry now inside rifle range of the forward squads."
+    ]
+  },
+  "event_log": {
+    "enemy_spotted": [
+      "{enemy} spotted at {distance} m, {zone}.",
+      "Contact: {enemy}, {distance} m out, {zone}.",
+      "{unit} reports {enemy} at {distance} m.",
+      "{enemy} observed in {zone}, {distance} m."
+    ],
+    "squad_lost": [
+      "{squad} is down. No contact on the net.",
+      "Lost {squad} in {zone}. Close the gap.",
+      "{squad} wiped out. Line is thinner.",
+      "{squad} no longer responding. Presumed lost."
+    ],
+    "vehicle_destroyed": [
+      "{vehicle} destroyed in {zone}.",
+      "{vehicle} is burning. Crew status unknown.",
+      "{vehicle} knocked out at {zone}.",
+      "{vehicle} destroyed. Hit confirmed."
+    ],
+    "drone_hit": [
+      "Drone strike on {enemy}. Target hit.",
+      "Drone impact at {zone}. {enemy} down.",
+      "{unit} drone hit {enemy} at {distance} m.",
+      "Strike confirmed: {count} enemy casualties."
+    ],
+    "artillery_incoming": [
+      "Incoming artillery at {zone}. Take cover.",
+      "Shells inbound on {squad}. Stay down.",
+      "Artillery on {zone}. Hold in cover.",
+      "Impact in seconds at {zone}. Heads down."
+    ],
+    "transport_unloading": [
+      "Transport stopped at {distance} m. Infantry unloading.",
+      "{count} enemy infantry dismounting at {zone}.",
+      "{enemy} unloading in {zone}, {distance} m out.",
+      "Troops on foot at {distance} m. Prepare to receive."
+    ]
+  },
+  "routing_message": "The enemy is routing — victory is near."
+}

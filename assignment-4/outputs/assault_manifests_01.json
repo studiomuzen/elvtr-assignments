@@ -1,0 +1,297 @@
+{
+  "level": "01",
+  "manifests": [
+    {
+      "id": "north_road_push",
+      "name": "Northern Road Push",
+      "intent": "Main effort moves down the road from the north in two echelons. Armour leads the first echelon, with transports behind it unloading outside small-arms range. The second echelon brings more infantry under EW cover to exploit the first wave's gains.",
+      "waves": [
+        {
+          "label": "Armour and first echelon",
+          "phase": "VehicleAdvance",
+          "delay_s": 0,
+          "spawn_zone": "enemy_north",
+          "units": [
+            {
+              "id": "N1_T90",
+              "template": "T90",
+              "offset_m": [
+                100,
+                5
+              ],
+              "lead_m": 150
+            },
+            {
+              "id": "N1_MBT",
+              "template": "EnemyMBT_1",
+              "offset_m": [
+                60,
+                10
+              ],
+              "lead_m": 120
+            },
+            {
+              "id": "N1_IFV",
+              "template": "EnemyIFV_1",
+              "offset_m": [
+                140,
+                10
+              ],
+              "lead_m": 100
+            },
+            {
+              "id": "N1_TR1",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                80,
+                35
+              ],
+              "cargo": "N1_SQ1",
+              "unload_m": 450
+            },
+            {
+              "id": "N1_TR2",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                120,
+                35
+              ],
+              "cargo": "N1_SQ2",
+              "unload_m": 500
+            },
+            {
+              "id": "N1_SQ1",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                80,
+                45
+              ]
+            },
+            {
+              "id": "N1_SQ2",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                120,
+                45
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Second echelon with EW cover",
+          "phase": "MechanizedInfantry",
+          "delay_s": 90,
+          "spawn_zone": "enemy_north",
+          "units": [
+            {
+              "id": "N2_EW",
+              "template": "EnemyEWTruck",
+              "offset_m": [
+                100,
+                15
+              ]
+            },
+            {
+              "id": "N2_AA",
+              "template": "EnemyAA_1",
+              "offset_m": [
+                140,
+                20
+              ]
+            },
+            {
+              "id": "N2_TR1",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                60,
+                30
+              ],
+              "cargo": "N2_SQ1",
+              "unload_m": 400
+            },
+            {
+              "id": "N2_TR2",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                100,
+                40
+              ],
+              "cargo": "N2_SQ2",
+              "unload_m": 550
+            },
+            {
+              "id": "N2_SQ1",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                60,
+                45
+              ]
+            },
+            {
+              "id": "N2_SQ2",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                100,
+                55
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "east_flank_main_effort",
+      "name": "Eastern Flank Assault",
+      "intent": "Main effort comes from the east, away from the road, with heavy armour leading and transports unloading at long range. A small northern element fixes the defenders' attention. The last wave brings artillery and air defence forward to support the infantry.",
+      "waves": [
+        {
+          "label": "Eastern armour thrust",
+          "phase": "VehicleAdvance",
+          "delay_s": 0,
+          "spawn_zone": "enemy_east",
+          "units": [
+            {
+              "id": "E1_MBT",
+              "template": "EnemyMBT_1",
+              "offset_m": [
+                100,
+                8
+              ],
+              "lead_m": 180
+            },
+            {
+              "id": "E1_T90",
+              "template": "T90",
+              "offset_m": [
+                60,
+                12
+              ],
+              "lead_m": 140
+            },
+            {
+              "id": "E1_IFV",
+              "template": "EnemyIFV_1",
+              "offset_m": [
+                140,
+                12
+              ],
+              "lead_m": 100
+            },
+            {
+              "id": "E1_TR1",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                80,
+                35
+              ],
+              "cargo": "E1_SQ1",
+              "unload_m": 350
+            },
+            {
+              "id": "E1_TR2",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                120,
+                35
+              ],
+              "cargo": "E1_SQ2",
+              "unload_m": 480
+            },
+            {
+              "id": "E1_SQ1",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                80,
+                48
+              ]
+            },
+            {
+              "id": "E1_SQ2",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                120,
+                48
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Northern fixing element",
+          "phase": "MechanizedInfantry",
+          "delay_s": 60,
+          "spawn_zone": "enemy_north",
+          "units": [
+            {
+              "id": "E2_PU",
+              "template": "EnemyPickup",
+              "offset_m": [
+                100,
+                10
+              ]
+            },
+            {
+              "id": "E2_TR1",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                70,
+                30
+              ],
+              "cargo": "E2_SQ1",
+              "unload_m": 580
+            },
+            {
+              "id": "E2_SQ1",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                70,
+                45
+              ]
+            }
+          ]
+        },
+        {
+          "label": "Eastern follow-on and fire support",
+          "phase": "MechanizedInfantry",
+          "delay_s": 110,
+          "spawn_zone": "enemy_east",
+          "units": [
+            {
+              "id": "E3_SPG",
+              "template": "Koalitsiya",
+              "offset_m": [
+                100,
+                25
+              ]
+            },
+            {
+              "id": "E3_AA",
+              "template": "EnemyAA_1",
+              "offset_m": [
+                140,
+                20
+              ]
+            },
+            {
+              "id": "E3_TR1",
+              "template": "EnemyTransport_1",
+              "offset_m": [
+                70,
+                35
+              ],
+              "cargo": "E3_SQ1",
+              "unload_m": 420
+            },
+            {
+              "id": "E3_SQ1",
+              "template": "EnemySquad_1",
+              "offset_m": [
+                70,
+                50
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

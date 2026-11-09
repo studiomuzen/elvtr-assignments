@@ -1,0 +1,6 @@
+[Radio] Intel: HQ to all units: enemy column massing beyond the ridge. Assault is coming.
+[Intel] shown: Assault on the Line: Company commander, listen up. Enemy assault expected on our sector within minutes. Armour leads, then transports with mechanised infantry. Expect drones and artillery first.
+[Radio] Scouting: Enemy scout drones over the line. Keep your heads down.
+[Radio] Bombardment: Artillery on revealed positions. Stay in cover and ride it out.
+[Radio] VehicleAdvance: Armour on the road, closing fast. Save drones and anti-tank for the vehicles.
+[Radio] MechanizedInfantry: Transports behind the armour. They will stop and unload 300 to 600 metres out.

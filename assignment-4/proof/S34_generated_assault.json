@@ -1,0 +1,280 @@
+{
+  "id": "S34_generated_assault",
+  "title": "Generated assault 'Northern Road Push' (content pipeline, manifest 0) loads and advances",
+  "problem": "Assignment 4: prove the pipeline's assault manifest is valid engine content — every unit spawns from its template, transports carry and unload their squads in the 300-600 m band, armour leads.",
+  "duration_s": 60,
+  "time_scale": 1,
+  "fog_of_war": false,
+  "playable_area": false,
+  "seed": 3401,
+  "camera": {
+    "follow": [
+      "N1_T90",
+      "N1_MBT",
+      "N1_IFV"
+    ]
+  },
+  "flags": [
+    {
+      "name": "VehicleMovementRules",
+      "value": true
+    }
+  ],
+  "units": [
+    {
+      "id": "P1",
+      "template": "PlayerSquad_1",
+      "pos": [
+        -20,
+        0,
+        0
+      ],
+      "order": "hold"
+    },
+    {
+      "id": "P2",
+      "template": "PlayerSquad_8",
+      "pos": [
+        20,
+        0,
+        0
+      ],
+      "order": "hold"
+    },
+    {
+      "id": "N1_T90",
+      "template": "T90",
+      "pos": [
+        0.0,
+        0,
+        555.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N1_MBT",
+      "template": "EnemyMBT_1",
+      "pos": [
+        -40.0,
+        0,
+        590.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N1_IFV",
+      "template": "EnemyIFV_1",
+      "pos": [
+        40.0,
+        0,
+        610.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N1_TR1",
+      "template": "EnemyTransport_1",
+      "pos": [
+        -20.0,
+        0,
+        735.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ],
+      "cargo": "N1_SQ1"
+    },
+    {
+      "id": "N1_TR2",
+      "template": "EnemyTransport_1",
+      "pos": [
+        20.0,
+        0,
+        735.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ],
+      "cargo": "N1_SQ2"
+    },
+    {
+      "id": "N1_SQ1",
+      "template": "EnemySquad_1",
+      "pos": [
+        -20.0,
+        0,
+        745.0
+      ],
+      "order": "hold",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N1_SQ2",
+      "template": "EnemySquad_1",
+      "pos": [
+        20.0,
+        0,
+        745.0
+      ],
+      "order": "hold",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N2_EW",
+      "template": "EnemyEWTruck",
+      "pos": [
+        0.0,
+        0,
+        1165.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N2_AA",
+      "template": "EnemyAA_1",
+      "pos": [
+        40.0,
+        0,
+        1170.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N2_TR1",
+      "template": "EnemyTransport_1",
+      "pos": [
+        -40.0,
+        0,
+        1180.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ],
+      "cargo": "N2_SQ1"
+    },
+    {
+      "id": "N2_TR2",
+      "template": "EnemyTransport_1",
+      "pos": [
+        0.0,
+        0,
+        1190.0
+      ],
+      "order": "forward",
+      "goal": [
+        0,
+        0,
+        0
+      ],
+      "cargo": "N2_SQ2"
+    },
+    {
+      "id": "N2_SQ1",
+      "template": "EnemySquad_1",
+      "pos": [
+        -40.0,
+        0,
+        1195.0
+      ],
+      "order": "hold",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    },
+    {
+      "id": "N2_SQ2",
+      "template": "EnemySquad_1",
+      "pos": [
+        0.0,
+        0,
+        1205.0
+      ],
+      "order": "hold",
+      "goal": [
+        0,
+        0,
+        0
+      ]
+    }
+  ],
+  "action": {
+    "at_s": 1,
+    "verb": "none"
+  },
+  "expect": [
+    {
+      "metric": "units_spawned",
+      "op": "==",
+      "value": 15,
+      "why": "every manifest unit maps to a sandbox template and spawns"
+    },
+    {
+      "metric": "transport_unload_distance_m",
+      "op": ">=",
+      "value": 300,
+      "why": "GDD 06: transports stop 300-600 m out and unload"
+    },
+    {
+      "metric": "transport_unload_distance_m",
+      "op": "<=",
+      "value": 600,
+      "why": "GDD 06: transports stop 300-600 m out and unload"
+    },
+    {
+      "metric": "exceptions",
+      "op": "==",
+      "value": 0,
+      "why": "the content loads without runtime errors"
+    },
+    {
+      "metric": "log_errors",
+      "op": "==",
+      "value": 0,
+      "why": "no error lines while the assault runs"
+    }
+  ]
+}
