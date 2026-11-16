@@ -82,7 +82,7 @@ Branch `a5/gap-agent` of the game repo, commit `216b6c7c3`, exactly as generated
 | 1 | 7 files | 6 of 6 requirements met; judge: `exists` | **FAIL**: the test filter `CountdownHud` matched 0 tests (the test was named `TownCentreHoldTest`) | not accepted; the Unity output went back to the writer |
 | 2 | added a second test, `CountdownHud_ShowsRemainingSeconds_…` | 6 of 6 met; judge: `exists` | **PASS** | accepted, loop stopped |
 
-Logs: [`proof/logs/`](proof/logs/). Agent cost: about $2.30 of `claude -p` calls for the full run.
+Logs: [`proof/logs/`](proof/logs/). Agent cost: $1.54 for the plan-only run (extract, scan, rank) and $0.80 for the resumed run (re-scans and the second write). The cost of the first write was not logged, because that run crashed before its report.
 
 ## Proof: the feature in the built game
 
