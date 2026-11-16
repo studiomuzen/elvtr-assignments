@@ -1,0 +1,576 @@
+diff --git a/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs b/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs
+new file mode 100644
+index 000000000..c4c936b9d
+--- /dev/null
++++ b/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs	
+@@ -0,0 +1,58 @@
++using UnityEngine;
++
++namespace Ambush.Game
++{
++    /// <summary>Why a day was lost (GDD 02 § How a day is won or lost).</summary>
++    public enum DayLossReason
++    {
++        None,
++        CentreHeld
++    }
++
++    /// <summary>
++    /// GDD 02 "Day lost: centre held": the checker adds a TownCentreZone (FeatureFlags.TownCentreHold)
++    /// and ends the battle as EnemyWins when the zone raises OnCentreHeld.
++    /// </summary>
++    public partial class BattleEndChecker
++    {
++        public const string CentreHeldLogPrefix = "[BattleEnd] Enemy wins — town centre held";
++        public const string CentreHeldMessage = "DAY LOST — the enemy holds the town centre.";
++
++        /// <summary>CentreHeld when the day ended on the town-centre rule, else None.</summary>
++        public DayLossReason DayLoss { get; private set; }
++        public TownCentreZone TownCentre => _townCentre;
++
++        private TownCentreZone _townCentre;
++
++        private void HookTownCentre()
++        {
++            if (!FeatureFlags.TownCentreHold) return;
++            _townCentre = GetComponent<TownCentreZone>();
++            if (_townCentre == null) _townCentre = gameObject.AddComponent<TownCentreZone>();
++            _townCentre.OnCentreHeld -= HandleCentreHeld;
++            _townCentre.OnCentreHeld += HandleCentreHeld;
++            battleEndedEvent.AddListener(HaltTownCentre);
++        }
++
++        private void HaltTownCentre(BattleOutcome outcome)
++        {
++            if (_townCentre != null) _townCentre.Halt();
++        }
++
++        private void HandleCentreHeld()
++        {
++            if (HasFired) return;
++            if (pollCoroutine != null)
++            {
++                StopCoroutine(pollCoroutine); // no second outcome from the poll loop
++                pollCoroutine = null;
++            }
++            float s = _townCentre != null ? _townCentre.HoldSeconds : TownCentreZone.DefaultHoldSeconds;
++            Debug.Log($"{CentreHeldLogPrefix} for {s:0} s.");
++            DayLoss = DayLossReason.CentreHeld;
++            HasFired = true;
++            Ambush.UI.EventLog.Post(CentreHeldMessage, true);
++            battleEndedEvent.Invoke(BattleOutcome.EnemyWins);
++        }
++    }
++}
+diff --git a/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.cs b/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.cs
+index 7f8de86c9..303fa037d 100644
+--- a/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.cs	
++++ b/ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.cs	
+@@ -13,7 +13,7 @@ namespace Ambush.Game
+         EnemyWins
+     }
+ 
+-    public class BattleEndChecker : MonoBehaviour
++    public partial class BattleEndChecker : MonoBehaviour
+     {
+         // N192 (decisions 11/12): defeat when a live enemy enters the current level's player_zone
+         // box (manifest, FlatTest x,z in [-450,-350]) grown by playerZoneMarginM. enemyBreakthroughZ
+@@ -149,6 +149,7 @@ namespace Ambush.Game
+ 
+             battleEndedEvent.AddListener(PostOutcome); // N135
+             battleEndedEvent.AddListener(GrantVeterancyOnOutcome); // N196: both outcomes
++            HookTownCentre(); // GDD 02 "Day lost: centre held" (BattleEndChecker.TownCentre.cs)
+         }
+ 
+         // N135: the outcome line in the HUD event log (also fires when a test invokes BattleEnded).
+diff --git a/ELVATR GAME 1/Assets/Scripts/Game/FeatureFlags.cs b/ELVATR GAME 1/Assets/Scripts/Game/FeatureFlags.cs
+index 1b347aa12..80b0b98ba 100644
+--- a/ELVATR GAME 1/Assets/Scripts/Game/FeatureFlags.cs	
++++ b/ELVATR GAME 1/Assets/Scripts/Game/FeatureFlags.cs	
+@@ -97,5 +97,12 @@ namespace Ambush.Game
+         /// 2026-11-09); also spawns the scenery houses. env AMBUSH_PIXEL_TERRAIN=1 or arg -pixelterrain forces it on (PixelTerrain.Hook).
+         /// </summary>
+         public static bool PixelTerrain { get; set; } = true;
++
++        /// <summary>
++        /// GDD 02 § How a day is won or lost: "Day lost: centre held" — BattleEndChecker adds a
++        /// TownCentreZone (60 s uncontested Russian hold ends the day) and HudFrame adds the
++        /// CountdownHud. On by default; off: neither is created.
++        /// </summary>
++        public static bool TownCentreHold { get; set; } = true;
+     }
+ }
+diff --git a/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs b/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+new file mode 100644
+index 000000000..6c761ee06
+--- /dev/null
++++ b/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs	
+@@ -0,0 +1,136 @@
++using System;
++using System.Collections.Generic;
++using UnityEngine;
++using Ambush.Units;
++
++namespace Ambush.Game
++{
++    /// <summary>
++    /// GDD 02 § How a day is won or lost: "Day lost: centre held" — Russian infantry is inside the
++    /// town centre and no living Ukrainian soldier is inside it for <see cref="DefaultHoldSeconds"/>
++    /// in a row. Each frame the zone reads UnitRegistry.AliveSoldiers for both sides and reports
++    /// <see cref="RussianInside"/> / <see cref="UkrainianInside"/>; centreTimer counts up only while
++    /// Russians hold it uncontested and resets to zero otherwise. At the hold duration it raises
++    /// <see cref="OnCentreHeld"/> exactly once (BattleEndChecker records the day loss; CountdownHud
++    /// shows the remaining seconds). Added by BattleEndChecker behind FeatureFlags.TownCentreHold.
++    ///
++    /// No level data names a town centre yet, so the zone is a square of halfSizeM around the centre
++    /// of the playable area (BattleEndChecker.PlayableBounds); <see cref="SetZone"/> overrides it.
++    /// </summary>
++    public class TownCentreZone : MonoBehaviour
++    {
++        public const float DefaultHoldSeconds = 60f;
++        public const float DefaultHalfSizeM = 50f;
++
++        [SerializeField] private float holdSeconds = DefaultHoldSeconds;
++        [SerializeField] private float halfSizeM = DefaultHalfSizeM;
++
++        /// <summary>The zone on screen now (null without one, e.g. Setup or test scenes).</summary>
++        public static TownCentreZone Current { get; private set; }
++
++        /// <summary>Raised once, when centreTimer reaches the hold duration.</summary>
++        public event Action OnCentreHeld;
++
++        private float centreTimer;
++        private Vector2 _min, _max;
++        private bool _zoneSet;
++        private bool _halted;
++        private readonly List<SoldierBehavior> _buffer = new List<SoldierBehavior>(256);
++
++        public float HoldSeconds => holdSeconds;
++        /// <summary>Seconds Russian infantry has held the centre uncontested, in a row.</summary>
++        public float CentreTimer => centreTimer;
++        public float RemainingSeconds => Mathf.Max(0f, holdSeconds - centreTimer);
++        public bool RussianInside { get; private set; }
++        public bool UkrainianInside { get; private set; }
++        public bool HasHeld { get; private set; }
++        /// <summary>True while the countdown runs (timer above zero, not yet held).</summary>
++        public bool IsCounting => centreTimer > 0f && !HasHeld && !_halted;
++        public Vector2 MinXZ => _min;
++        public Vector2 MaxXZ => _max;
++        /// <summary>Tests drive <see cref="Tick"/> themselves; Update then does nothing.</summary>
++        public bool ManualTick { get; set; }
++
++        [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
++        private static void ResetOnPlay() => Current = null;
++
++        private void OnEnable() => Current = this;
++
++        private void OnDisable()
++        {
++            if (Current == this) Current = null;
++        }
++
++        /// <summary>Sets the centre box in world XZ (min / max corners).</summary>
++        public void SetZone(Vector2 min, Vector2 max)
++        {
++            _min = Vector2.Min(min, max);
++            _max = Vector2.Max(min, max);
++            _zoneSet = true;
++        }
++
++        private void ResolveZone()
++        {
++            BattleEndChecker.PlayableBounds(out Vector2 min, out Vector2 max);
++            Vector2 c = (min + max) * 0.5f;
++            Vector2 h = new Vector2(halfSizeM, halfSizeM);
++            SetZone(c - h, c + h);
++        }
++
++        public bool Contains(Vector3 pos) =>
++            pos.x >= _min.x && pos.x <= _max.x && pos.z >= _min.y && pos.z <= _max.y;
++
++        /// <summary>Stops the countdown (battle over by another rule); the HUD hides.</summary>
++        public void Halt()
++        {
++            _halted = true;
++            if (!HasHeld) centreTimer = 0f;
++        }
++
++        private void Update()
++        {
++            if (ManualTick || _halted) return;
++            if (!FeatureFlags.TownCentreHold) { centreTimer = 0f; return; }
++            var flow = BattleFlow.Instance;
++            if (flow != null && !flow.HasBattleStarted) { centreTimer = 0f; return; }
++            Tick(Time.deltaTime);
++        }
++
++        /// <summary>Reads who is inside, then advances or resets centreTimer by <paramref name="dt"/>.</summary>
++        public void Tick(float dt)
++        {
++            if (HasHeld || _halted) return;
++            if (!_zoneSet) ResolveZone();
++
++            RussianInside = AnyInside(Faction.Enemy);
++            UkrainianInside = AnyInside(Faction.Player);
++
++            if (!RussianInside || UkrainianInside)
++            {
++                centreTimer = 0f;
++                return;
++            }
++
++            centreTimer += Mathf.Max(0f, dt);
++            if (centreTimer >= holdSeconds)
++            {
++                centreTimer = holdSeconds;
++                HasHeld = true;
++                Debug.Log($"[TownCentre] held by Russian infantry for {holdSeconds:0} s");
++                OnCentreHeld?.Invoke();
++            }
++        }
++
++        private bool AnyInside(Faction faction)
++        {
++            UnitRegistry.AliveSoldiers(faction, _buffer);
++            bool any = false;
++            for (int i = 0; i < _buffer.Count; i++)
++            {
++                if (Contains(_buffer[i].transform.position)) { any = true; break; }
++            }
++            _buffer.Clear();
++            return any;
++        }
++    }
++}
+diff --git a/ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs b/ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs
+new file mode 100644
+index 000000000..194a164fa
+--- /dev/null
++++ b/ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs	
+@@ -0,0 +1,95 @@
++using TMPro;
++using UnityEngine;
++using UnityEngine.UI;
++using Ambush.Game;
++
++namespace Ambush.UI
++{
++    /// <summary>
++    /// GDD 02 "Day lost: centre held (HUD countdown)": while TownCentreZone's centreTimer runs, a
++    /// label under the top bar shows the seconds left (hold duration minus centreTimer); it is
++    /// hidden whenever the timer is reset. Built by HudFrame (FeatureFlags.TownCentreHold).
++    /// The label is a TextMeshProUGUI when the TMP Settings resource ships; without it TMP would
++    /// throw in a player build, so the HUD's legacy Text in the pixel font is used instead.
++    /// </summary>
++    public class CountdownHud : MonoBehaviour
++    {
++        public const string RootName = "CentreCountdown";
++        public const string LabelName = "CentreCountdownLabel";
++
++        private GameObject _root;
++        private TextMeshProUGUI _tmp;
++        private Text _legacy;
++        private bool _visible;
++        private int _shownSecs = -1;
++
++        public bool IsVisible => _visible;
++        /// <summary>The countdown text on screen now (null until built).</summary>
++        public string Shown => _tmp != null ? _tmp.text : _legacy != null ? _legacy.text : null;
++
++        public static string CountdownText(int secs) => $"CENTRE FALLS IN {secs} s";
++
++        /// <summary>Builds the (hidden) countdown panel under <paramref name="parent"/>, once.</summary>
++        public void Build(RectTransform parent)
++        {
++            if (_root != null || parent == null) return;
++            var rt = NewRect(RootName, parent, new Vector2(0.38f, 0.875f), new Vector2(0.62f, 0.935f));
++            _root = rt.gameObject;
++            var bg = _root.AddComponent<Image>();
++            bg.color = new Color(HudFrame.PanelColor.r, HudFrame.PanelColor.g, HudFrame.PanelColor.b, 0.85f);
++            bg.raycastTarget = false;
++
++            var labelRt = NewRect(LabelName, rt, Vector2.zero, Vector2.one);
++            if (Resources.Load<TMP_Settings>("TMP Settings") != null)
++            {
++                _tmp = labelRt.gameObject.AddComponent<TextMeshProUGUI>();
++                _tmp.fontSize = 18;
++                _tmp.color = HudFrame.Salmon;
++                _tmp.alignment = TextAlignmentOptions.Center;
++                _tmp.raycastTarget = false;
++            }
++            else
++            {
++                _legacy = labelRt.gameObject.AddComponent<Text>();
++                _legacy.font = HudFrame.DisplayFont;
++                _legacy.fontSize = 14;
++                _legacy.color = HudFrame.Salmon;
++                _legacy.alignment = TextAnchor.MiddleCenter;
++                _legacy.horizontalOverflow = HorizontalWrapMode.Overflow;
++                _legacy.raycastTarget = false;
++            }
++            _root.SetActive(false);
++            _visible = false;
++        }
++
++        private void Update()
++        {
++            var zone = TownCentreZone.Current;
++            bool show = FeatureFlags.TownCentreHold && zone != null && zone.IsCounting;
++            if (show != _visible)
++            {
++                _visible = show;
++                if (_root != null) _root.SetActive(show);
++                if (!show) _shownSecs = -1;
++            }
++            if (!show) return;
++
++            int secs = Mathf.Max(0, Mathf.CeilToInt(zone.HoldSeconds - zone.CentreTimer));
++            if (secs == _shownSecs) return; // a new string only once a second
++            _shownSecs = secs;
++            string text = CountdownText(secs);
++            if (_tmp != null) _tmp.text = text;
++            if (_legacy != null) _legacy.text = text;
++        }
++
++        private static RectTransform NewRect(string name, Transform parent, Vector2 min, Vector2 max)
++        {
++            var rt = (RectTransform)new GameObject(name, typeof(RectTransform)).transform;
++            rt.SetParent(parent, false);
++            rt.anchorMin = min;
++            rt.anchorMax = max;
++            rt.offsetMin = rt.offsetMax = Vector2.zero;
++            return rt;
++        }
++    }
++}
+diff --git a/ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs b/ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs
+index 51c458a75..9433e0aa3 100644
+--- a/ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs	
++++ b/ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs	
+@@ -152,6 +152,9 @@ namespace Ambush.UI
+             NewRect("EventLog", root, new Vector2(0.7675f, 0.8667f), new Vector2(0.9859f, 0.9233f))
+                 .gameObject.AddComponent<EventLog>();
+ 
++            // GDD 02 "Day lost: centre held": the town-centre hold countdown under the top bar.
++            if (FeatureFlags.TownCentreHold) gameObject.AddComponent<CountdownHud>().Build(root);
++
+             // Old segment panels are now empty shells: keep them (tests look them up) but invisible.
+             foreach (var n in new[] { "CenterPanel", "RightPanel" })
+             {
+diff --git a/ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs b/ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs
+new file mode 100644
+index 000000000..840c204d9
+--- /dev/null
++++ b/ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs	
+@@ -0,0 +1,211 @@
++using System;
++using System.Collections;
++using System.Reflection;
++using NUnit.Framework;
++using UnityEngine;
++using UnityEngine.SceneManagement;
++using UnityEngine.TestTools;
++using Object = UnityEngine.Object;
++
++namespace Ambush.Tests.PlayMode
++{
++    /// <summary>
++    /// GDD 02 "Day lost: centre held": TownCentreZone's centreTimer advances while Russian infantry
++    /// is alone in the zone, resets to zero when a Ukrainian soldier enters, and OnCentreHeld fires
++    /// exactly once after 60 s. The zone is ticked by hand (ManualTick) in a scene far from any
++    /// other unit. Reflection only (the test asmdef does not reference Assembly-CSharp).
++    /// </summary>
++    public class TownCentreHoldTest
++    {
++        private const BindingFlags AnyInstance = BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic;
++        private static readonly Vector3 Origin = new Vector3(-80000f, 0f, 80000f);
++
++        private static Type RequireType(string fullName)
++        {
++            foreach (var a in AppDomain.CurrentDomain.GetAssemblies())
++            {
++                var t = a.GetType(fullName, throwOnError: false);
++                if (t != null) return t;
++            }
++            Assert.Fail($"{fullName} type not found.");
++            return null;
++        }
++
++        private static void Set(object target, string field, object value)
++        {
++            var f = target.GetType().GetField(field, AnyInstance);
++            Assert.IsNotNull(f, $"{target.GetType().Name}.{field} not found.");
++            if (f.FieldType.IsEnum && value is string s) value = Enum.Parse(f.FieldType, s);
++            f.SetValue(target, value);
++        }
++
++        private static object Prop(object target, string name) =>
++            target.GetType().GetProperty(name, AnyInstance).GetValue(target);
++
++        private static GameObject SpawnSoldier(Type healthType, Type soldierType, string faction, Vector3 pos)
++        {
++            var go = new GameObject("TownCentre_" + faction);
++            go.SetActive(false);
++            go.transform.position = pos;
++            var h = go.AddComponent(healthType);
++            var b = go.AddComponent(soldierType);
++            go.SetActive(true); // Awake + OnEnable (registers in UnitRegistry)
++            healthType.GetMethod("Initialize", BindingFlags.Public | BindingFlags.Instance).Invoke(h, new object[] { 100f });
++            Set(b, "selfFaction", faction);
++            Set(b, "damagePerSecond", 0f);
++            Set(b, "damagePerHit", 0f);
++            Set(b, "moveSpeed", 0f);
++            return go;
++        }
++
++        [UnityTest]
++        public IEnumerator CentreTimer_AdvancesAlone_ResetsOnUkrainian_FiresOnCentreHeldOnceAt60s()
++        {
++            var zoneType = RequireType("Ambush.Game.TownCentreZone");
++            var soldierType = RequireType("Ambush.Units.SoldierBehavior");
++            var healthType = RequireType("Ambush.Units.SoldierHealth");
++
++            var scene = SceneManager.CreateScene("TownCentreHoldTest_" + Time.frameCount);
++            var prevActive = SceneManager.GetActiveScene();
++            SceneManager.SetActiveScene(scene);
++            LogAssert.ignoreFailingMessages = true;
++            try
++            {
++                var zoneGo = new GameObject("TownCentreZone");
++                var zone = zoneGo.AddComponent(zoneType);
++                zoneType.GetProperty("ManualTick").SetValue(zone, true);
++                zoneType.GetMethod("SetZone").Invoke(zone, new object[]
++                {
++                    new Vector2(Origin.x - 10f, Origin.z - 10f), new Vector2(Origin.x + 10f, Origin.z + 10f)
++                });
++                var tick = zoneType.GetMethod("Tick");
++                int held = 0;
++                zoneType.GetEvent("OnCentreHeld").AddEventHandler(zone, (Action)(() => held++));
++                float hold = (float)Prop(zone, "HoldSeconds");
++                Assert.AreEqual(60f, hold, 0.001f, "The town centre hold is 60 s.");
++                float Timer() => (float)Prop(zone, "CentreTimer");
++
++                // Empty zone: no countdown.
++                tick.Invoke(zone, new object[] { 1f });
++                Assert.AreEqual(0f, Timer(), "centreTimer must stay 0 with nobody inside.");
++
++                // Russian infantry alone: the timer advances.
++                var russian = SpawnSoldier(healthType, soldierType, "Enemy", Origin);
++                yield return null;
++                for (int i = 0; i < 10; i++) tick.Invoke(zone, new object[] { 1f });
++                Assert.IsTrue((bool)Prop(zone, "RussianInside"), "Russian soldier should be reported inside.");
++                Assert.IsFalse((bool)Prop(zone, "UkrainianInside"), "No Ukrainian soldier inside yet.");
++                Assert.AreEqual(10f, Timer(), 0.001f, "centreTimer should advance with Russian infantry alone in the zone.");
++                Assert.IsTrue((bool)Prop(zone, "IsCounting"), "Countdown should be running.");
++
++                // A Ukrainian soldier enters: the timer resets to zero.
++                var ukrainian = SpawnSoldier(healthType, soldierType, "Player", Origin + new Vector3(2f, 0f, 2f));
++                yield return null;
++                tick.Invoke(zone, new object[] { 1f });
++                Assert.IsTrue((bool)Prop(zone, "UkrainianInside"), "Ukrainian soldier should be reported inside.");
++                Assert.AreEqual(0f, Timer(), "centreTimer must reset when a Ukrainian soldier is inside.");
++                Assert.IsFalse((bool)Prop(zone, "IsCounting"), "Countdown must stop when contested.");
++
++                // He leaves the map: 59 s is not enough, 60 s fires OnCentreHeld once.
++                Object.Destroy(ukrainian);
++                yield return null;
++                for (int i = 0; i < 59; i++) tick.Invoke(zone, new object[] { 1f });
++                Assert.AreEqual(59f, Timer(), 0.001f, "centreTimer should count again from zero.");
++                Assert.AreEqual(0, held, "OnCentreHeld fired before 60 s.");
++                tick.Invoke(zone, new object[] { 1f });
++                Assert.AreEqual(1, held, "OnCentreHeld should fire when centreTimer reaches 60 s.");
++                Assert.IsTrue((bool)Prop(zone, "HasHeld"), "Zone should report the centre as held.");
++                for (int i = 0; i < 5; i++) tick.Invoke(zone, new object[] { 1f });
++                Assert.AreEqual(1, held, "OnCentreHeld must fire exactly once.");
++
++                Object.Destroy(zoneGo);
++                Object.Destroy(russian);
++                yield return null;
++            }
++            finally
++            {
++                LogAssert.ignoreFailingMessages = false;
++                if (prevActive.IsValid()) SceneManager.SetActiveScene(prevActive);
++            }
++
++            var unload = SceneManager.UnloadSceneAsync(scene);
++            while (unload != null && !unload.isDone) yield return null;
++        }
++
++        /// <summary>
++        /// CountdownHud: hidden with nobody in the zone, shows the seconds left (hold minus centreTimer)
++        /// while Russian infantry holds it alone, hides when a Ukrainian soldier resets the timer, and
++        /// hides again once OnCentreHeld has fired.
++        /// </summary>
++        [UnityTest]
++        public IEnumerator CountdownHud_ShowsRemainingSeconds_HidesOnReset_AndAfterOnCentreHeld()
++        {
++            var zoneType = RequireType("Ambush.Game.TownCentreZone");
++            var hudType = RequireType("Ambush.UI.CountdownHud");
++            var soldierType = RequireType("Ambush.Units.SoldierBehavior");
++            var healthType = RequireType("Ambush.Units.SoldierHealth");
++
++            var scene = SceneManager.CreateScene("CountdownHudTest_" + Time.frameCount);
++            var prevActive = SceneManager.GetActiveScene();
++            SceneManager.SetActiveScene(scene);
++            LogAssert.ignoreFailingMessages = true;
++            try
++            {
++                var zoneGo = new GameObject("TownCentreZone");
++                var zone = zoneGo.AddComponent(zoneType);
++                zoneType.GetProperty("ManualTick").SetValue(zone, true);
++                zoneType.GetMethod("SetZone").Invoke(zone, new object[]
++                {
++                    new Vector2(Origin.x - 10f, Origin.z - 10f), new Vector2(Origin.x + 10f, Origin.z + 10f)
++                });
++                var tick = zoneType.GetMethod("Tick");
++                int held = 0;
++                zoneType.GetEvent("OnCentreHeld").AddEventHandler(zone, (Action)(() => held++));
++
++                var canvasGo = new GameObject("CountdownHudTestCanvas", typeof(RectTransform), typeof(Canvas));
++                var hud = canvasGo.AddComponent(hudType);
++                hudType.GetMethod("Build").Invoke(hud, new object[] { (RectTransform)canvasGo.transform });
++                bool Visible() => (bool)Prop(hud, "IsVisible");
++                string Shown() => (string)Prop(hud, "Shown");
++
++                tick.Invoke(zone, new object[] { 1f });
++                yield return null;
++                Assert.IsFalse(Visible(), "CountdownHud must be hidden with nobody in the centre.");
++
++                var russian = SpawnSoldier(healthType, soldierType, "Enemy", Origin);
++                yield return null;
++                for (int i = 0; i < 5; i++) tick.Invoke(zone, new object[] { 1f });
++                yield return null;
++                Assert.IsTrue(Visible(), "CountdownHud must show while Russian infantry holds the centre alone.");
++                StringAssert.Contains("55", Shown(), "CountdownHud should show 60 - centreTimer = 55 s.");
++
++                var ukrainian = SpawnSoldier(healthType, soldierType, "Player", Origin + new Vector3(2f, 0f, 2f));
++                yield return null;
++                tick.Invoke(zone, new object[] { 1f });
++                yield return null;
++                Assert.AreEqual(0f, (float)Prop(zone, "CentreTimer"), "centreTimer resets with a Ukrainian inside.");
++                Assert.IsFalse(Visible(), "CountdownHud must hide when the timer is reset.");
++
++                Object.Destroy(ukrainian);
++                yield return null;
++                for (int i = 0; i < 60; i++) tick.Invoke(zone, new object[] { 1f });
++                yield return null;
++                Assert.AreEqual(1, held, "OnCentreHeld should fire once after 60 s.");
++                Assert.IsFalse(Visible(), "CountdownHud hides once the centre is held.");
++
++                Object.Destroy(canvasGo);
++                Object.Destroy(zoneGo);
++                Object.Destroy(russian);
++                yield return null;
++            }
++            finally
++            {
++                LogAssert.ignoreFailingMessages = false;
++                if (prevActive.IsValid()) SceneManager.SetActiveScene(prevActive);
++            }
++
++            var unload = SceneManager.UnloadSceneAsync(scene);
++            while (unload != null && !unload.isDone) yield return null;
++        }
++    }
++}

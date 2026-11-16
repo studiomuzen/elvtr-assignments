@@ -1,0 +1,96 @@
+[
+ {
+  "try": 1,
+  "changed": [],
+  "reverted": [],
+  "requirements": [
+   {
+    "text": "A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.",
+    "pattern": "class\\s+TownCentreZone\\b[\\s\\S]*(AliveSoldiers|UnitRegistry)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs"
+   },
+   {
+    "text": "A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.",
+    "pattern": "centreTimer[\\s\\S]{0,400}(60f|60\\.0f|holdSeconds|HoldSeconds)|(60f|holdSeconds|HoldSeconds)[\\s\\S]{0,400}centreTimer",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs"
+   },
+   {
+    "text": "The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.",
+    "pattern": "class\\s+CountdownHud\\b[\\s\\S]*TextMeshProUGUI[\\s\\S]*(SetActive|enabled|alpha)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs"
+   },
+   {
+    "text": "When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.",
+    "pattern": "OnCentreHeld[\\s\\S]{0,300}(Invoke|\\?\\.)|(\\+=\\s*\\w*|Subscribe\\(\\s*)\\s*\\w*OnCentreHeld|OnCentreHeld\\s*\\+=",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs"
+   },
+   {
+    "text": "CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.",
+    "pattern": "(AddComponent<CountdownHud>|new\\s+GameObject\\([^)]*CountdownHud|FindObjectOfType<CountdownHud>|CountdownHud\\.\\w+)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs"
+   },
+   {
+    "text": "An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.",
+    "pattern": "\\[(Test|UnityTest)\\][\\s\\S]{0,1500}(centreTimer|CountdownHud|TownCentreZone)[\\s\\S]{0,1500}OnCentreHeld|OnCentreHeld[\\s\\S]{0,1500}\\[(Test|UnityTest)\\]",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs"
+   }
+  ],
+  "scan_status": "exists",
+  "verify_pass": false,
+  "verify_errors": "[unity_cli] 13:37:34 ERROR PlayMode ran 0 tests — harness is executing nothing\n[unity_cli] 13:37:34 test done (play rc=5)",
+  "agent_reply": "(resumed)"
+ },
+ {
+  "try": 2,
+  "changed": [],
+  "reverted": [],
+  "requirements": [
+   {
+    "text": "A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.",
+    "pattern": "class\\s+TownCentreZone\\b[\\s\\S]*(AliveSoldiers|UnitRegistry)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs"
+   },
+   {
+    "text": "A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.",
+    "pattern": "centreTimer[\\s\\S]{0,400}(60f|60\\.0f|holdSeconds|HoldSeconds)|(60f|holdSeconds|HoldSeconds)[\\s\\S]{0,400}centreTimer",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs"
+   },
+   {
+    "text": "The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.",
+    "pattern": "class\\s+CountdownHud\\b[\\s\\S]*TextMeshProUGUI[\\s\\S]*(SetActive|enabled|alpha)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs"
+   },
+   {
+    "text": "When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.",
+    "pattern": "OnCentreHeld[\\s\\S]{0,300}(Invoke|\\?\\.)|(\\+=\\s*\\w*|Subscribe\\(\\s*)\\s*\\w*OnCentreHeld|OnCentreHeld\\s*\\+=",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs"
+   },
+   {
+    "text": "CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.",
+    "pattern": "(AddComponent<CountdownHud>|new\\s+GameObject\\([^)]*CountdownHud|FindObjectOfType<CountdownHud>|CountdownHud\\.\\w+)",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs"
+   },
+   {
+    "text": "An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.",
+    "pattern": "\\[(Test|UnityTest)\\][\\s\\S]{0,1500}(centreTimer|CountdownHud|TownCentreZone)[\\s\\S]{0,1500}OnCentreHeld|OnCentreHeld[\\s\\S]{0,1500}\\[(Test|UnityTest)\\]",
+    "met": true,
+    "where": "ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs"
+   }
+  ],
+  "scan_status": "exists",
+  "verify_pass": true,
+  "verify_errors": "",
+  "agent_reply": "The previous try failed because PlayMode ran zero tests, not because of a compile error. The harness ran PlayMode with `-testFilter CountdownHud`, which matches on test names. The only test was `TownCentreHoldTest.CentreTimer_AdvancesAlone_…`, which doesn't contain \"CountdownHud\", so nothing was selected.\n\nI haven't run Unity, so the new test hasn't been compiled or run yet.\n\n**Changed this time**\n- `ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs`: added a second test, `CountdownHud_ShowsRemainingSeconds_HidesOnReset_AndAfterOnCentreHeld`, so the `CountdownHud` filter now finds a test. It builds the countdown on a test canvas and checks that:\n  - the label is hidden when nobody is in the centre;\n  - it shows \"55\" after 5 s of Russian infantry alone;\n  - it hides when a Ukrainian soldier resets the timer;\n  - `OnCentreHeld` fires once at 60 s, and the label is hidden after that.\n\n**From the previous try, unchanged**\n- `Scripts/Game/TownCentreZone.cs`: the zone. Each frame it asks `UnitRegistry` for living soldiers on both sides and runs the 60 s `centreTimer`, raising `OnCentreHeld` once.\n- `Scripts/Game/BattleEndChecker.TownCentre.cs`: adds the zone, listens for `OnCentreHeld` and records the \"centre held\" day loss.\n- `Scripts/UI/CountdownHud.cs`: the label under the top bar showing the seconds left; hidden while the timer is at zero.\n- `Scripts/Game/BattleEndChecker.cs`: marked `partial`, plus one hook-up line.\n- `Scripts/Game/FeatureFlags.cs`: new `TownCentreHold` flag, on by default.\n- `Scripts/UI/HudFrame.cs`: one line that adds the countdown to the battle HUD when the flag is on.\n\nOne thing to watch: `CountdownHud` only uses a `TextMeshProUGUI` label if the \"TMP Settings\" resource is in the build. Without it, it falls back to the HUD's ordinary text in the pixel font, so it doesn't crash in a standalone build. In that fallback the countdown never uses TextMeshPro."
+ }
+]

@@ -1,0 +1,39 @@
+diff --git a/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs b/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+index 6c761ee06..68b5fda1e 100644
+--- a/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs	
++++ b/ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs	
+@@ -74,6 +74,22 @@ namespace Ambush.Game
+             BattleEndChecker.PlayableBounds(out Vector2 min, out Vector2 max);
+             Vector2 c = (min + max) * 0.5f;
+             Vector2 h = new Vector2(halfSizeM, halfSizeM);
++            // MANUAL (assignment 5 proof): launch argument -towncentre x,z,half places the zone, because no level
++            // names a town centre yet and on FlatTest the map middle is never left to the enemy.
++            try
++            {
++                string[] args = Environment.GetCommandLineArgs();
++                int i = Array.IndexOf(args, "-towncentre");
++                if (i >= 0 && i + 1 < args.Length)
++                {
++                    string[] v = args[i + 1].Split(',');
++                    var inv = System.Globalization.CultureInfo.InvariantCulture;
++                    c = new Vector2(float.Parse(v[0], inv), float.Parse(v[1], inv));
++                    if (v.Length > 2) h = Vector2.one * float.Parse(v[2], inv);
++                    Debug.Log($"[TownCentre] zone from -towncentre: centre ({c.x:0},{c.y:0}) half {h.x:0} m");
++                }
++            }
++            catch (Exception) { }
+             SetZone(c - h, c + h);
+         }
+ 
+diff --git a/scripts/unity_cli.sh b/scripts/unity_cli.sh
+index 109e3d473..f8c25fa43 100755
+--- a/scripts/unity_cli.sh
++++ b/scripts/unity_cli.sh
+@@ -377,6 +377,7 @@ cmd_app_battle() {
+     [[ -n "$script_path" ]] || die "app-battle: script '$script' not found (looked in .claude/battle_scripts/)"
+     args+=(-battle-script "$script_path")
+   fi
++  [[ -n "${AMBUSH_EXTRA_ARGS:-}" ]] && args+=(${AMBUSH_EXTRA_ARGS})  # A5: extra player arguments (e.g. -towncentre x,z,half)
+   [[ "${AMBUSH_PIXEL_TERRAIN:-}" == 1 ]] && args+=(-pixelterrain)  # N291: before/after terrain view
+   # `open -g` keeps the game window from stealing focus; the player is found again by pgrep.
+   open -g -n -a "$app" --args "${args[@]}" || die "app-battle: open failed"

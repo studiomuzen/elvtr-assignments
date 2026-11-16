@@ -1,0 +1,96 @@
+{
+ "target": {
+  "name": "Town centre hold countdown",
+  "summary": "A HUD countdown shows the 60 s timer while Russian infantry holds the town centre uncontested.",
+  "quote": "Russian infantry is inside the town centre, and no living Ukrainian soldier is inside it, for **60 s** in a row (HUD countdown)",
+  "section": "How a day is won or lost",
+  "code_terms": [
+   "CountdownHud",
+   "centreTimer",
+   "TownCentreZone",
+   "TextMeshProUGUI",
+   "OnCentreHeld"
+  ],
+  "loop_impact": 4,
+  "size": "S",
+  "risk": "low",
+  "depends_on": [
+   "day loss conditions",
+   "HUD"
+  ],
+  "doc_status": "unknown",
+  "id": "02-02",
+  "gdd_file": "02-core-loop.md",
+  "term_hit": 1.0,
+  "grep": [
+   "CountdownHud (4 files, e.g. UI/CountdownHud.cs:15)",
+   "centreTimer (2 files, e.g. UI/CountdownHud.cs:9)",
+   "TownCentreZone (4 files, e.g. Game/TownCentreZone.cs:20)",
+   "TextMeshProUGUI (1 files, e.g. UI/CountdownHud.cs:12)",
+   "OnCentreHeld (2 files, e.g. Game/BattleEndChecker.TownCentre.cs:14)"
+  ],
+  "evidence": "Game/TownCentreZone.cs",
+  "deps_present": 1.0,
+  "missing_deps": [],
+  "score": 79.5,
+  "score_parts": {
+   "impact": 0.8,
+   "deps": 0.5,
+   "small": 1.0,
+   "low_risk": 1.0
+  },
+  "status": "exists"
+ },
+ "spec": {
+  "class_name": "CountdownHud",
+  "requirements": [
+   {
+    "text": "A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.",
+    "pattern": "class\\s+TownCentreZone\\b[\\s\\S]*(AliveSoldiers|UnitRegistry)"
+   },
+   {
+    "text": "A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.",
+    "pattern": "centreTimer[\\s\\S]{0,400}(60f|60\\.0f|holdSeconds|HoldSeconds)|(60f|holdSeconds|HoldSeconds)[\\s\\S]{0,400}centreTimer"
+   },
+   {
+    "text": "The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.",
+    "pattern": "class\\s+CountdownHud\\b[\\s\\S]*TextMeshProUGUI[\\s\\S]*(SetActive|enabled|alpha)"
+   },
+   {
+    "text": "When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.",
+    "pattern": "OnCentreHeld[\\s\\S]{0,300}(Invoke|\\?\\.)|(\\+=\\s*\\w*|Subscribe\\(\\s*)\\s*\\w*OnCentreHeld|OnCentreHeld\\s*\\+="
+   },
+   {
+    "text": "CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.",
+    "pattern": "(AddComponent<CountdownHud>|new\\s+GameObject\\([^)]*CountdownHud|FindObjectOfType<CountdownHud>|CountdownHud\\.\\w+)"
+   },
+   {
+    "text": "An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.",
+    "pattern": "\\[(Test|UnityTest)\\][\\s\\S]{0,1500}(centreTimer|CountdownHud|TownCentreZone)[\\s\\S]{0,1500}OnCentreHeld|OnCentreHeld[\\s\\S]{0,1500}\\[(Test|UnityTest)\\]"
+   }
+  ],
+  "context_files": [
+   "Game/BattleEndChecker.cs",
+   "UI/HudFrame.cs",
+   "UI/MainHudUI.cs",
+   "Units/UnitRegistry.cs",
+   "UI/WaveLabel.cs",
+   "Game/PlayableArea.cs"
+  ]
+ },
+ "accepted": true,
+ "tries": 2,
+ "cost_usd": 0.8,
+ "counts": {
+  "exists": 51,
+  "partial": 65,
+  "missing": 41
+ },
+ "weights": {
+  "impact": 0.4,
+  "deps": 0.25,
+  "small": 0.2,
+  "low_risk": 0.15
+ },
+ "picked_by_hand": false
+}

@@ -1,0 +1,3 @@
+81:[TownCentre] zone from -towncentre: centre (330,380) half 90 m
+421:[TownCentre] held by Russian infantry for 60 s
+422:[BattleEnd] Enemy wins — town centre held for 60 s.

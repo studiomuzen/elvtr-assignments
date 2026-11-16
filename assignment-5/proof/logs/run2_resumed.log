@@ -1,0 +1,113 @@
+GOAL: close the most valuable gap between docs/gdd and ELVATR GAME 1/Assets/Scripts
+
+[1-2] resumed from run-20261116-133201: features and scan verdicts reused
+  exists 51   partial 65   missing 41
+
+[3] gaps: 41 missing features
+  01-01  Centre-held loss countdown                   01-vision.md
+  01-08  Night repair and resupply                    01-vision.md
+  02-02  Town centre hold countdown                   02-core-loop.md
+  02-06  Night resupply and repair screen             02-core-loop.md
+  02-07  Persistent battlefield damage                02-core-loop.md
+  02-09  Shrinking nightly supply                     02-core-loop.md
+  02-10  Squad dig-in stages                          02-core-loop.md
+  04-07  Vehicle turret traversal limits              04-combat.md
+  04-10  Damage persists between days                 04-combat.md
+  07-02  Town centre objective                        07-map-flattest.md
+  08-06  Dug-in hole decals                           08-art-and-juice.md
+  08-07  Night screen                                 08-art-and-juice.md
+  09-03  Centre-held countdown                        09-ux-audio-accessibility.md
+  09-05  Full retreat with confirm                    09-ux-audio-accessibility.md
+  10-01  Run state save/load                          10-technical-architecture.md
+  10-02  Unit state persistence                       10-technical-architecture.md
+  10-03  Map damage persistence                       10-technical-architecture.md
+  10-04  Daily wave from days.json                    10-technical-architecture.md
+  10-09  Commander background planner                 10-technical-architecture.md
+  10-10  Rule-based agent fallback                    10-technical-architecture.md
+  13-01  Day loop with carry-over                     13-mvp.md
+  13-02  Day loss on town centre                      13-mvp.md
+  13-03  Night screen and setup                       13-mvp.md
+  13-06  Day 10 order screen and endless days         13-mvp.md
+  14-01  Withdrawal order choice                      14-campaign-and-levels.md
+  14-02  Town still stands check                      14-campaign-and-levels.md
+  14-03  Foot-only rail bridge                        14-campaign-and-levels.md
+  14-04  Ten-day campaign progression                 14-campaign-and-levels.md
+  14-06  Rotating endless-day challenges              14-campaign-and-levels.md
+  14-07  Halved income after supply cut               14-campaign-and-levels.md
+  14-09  Battle length target report                  14-campaign-and-levels.md
+  15-09  Battalion full retreat                       15-movement.md
+  16-01  Directional vehicle armour                   16-unit-stats.md
+  16-02  Penetration versus armour check              16-unit-stats.md
+  16-03  Top-attack weapon direction                  16-unit-stats.md
+  16-05  Infantry body armour factor                  16-unit-stats.md
+  16-07  Armour and penetration data loading          16-unit-stats.md
+  16-08  Blocked-hit feedback and sim metrics         16-unit-stats.md
+  16-09  Hull-forward face selection                  16-unit-stats.md
+  18-01  Cover arc display                            18-cover.md
+  18-02  Cover enter and leave delays                 18-cover.md
+
+[4] priority_score (weights: impact 40 %, deps 25 %, small 20 %, low_risk 15 %)
+| # | id | feature | score | impact (40) | deps met (25) | small (20) | low risk (15) | size | risk |
+|---|---|---|---|---|---|---|---|---|---|
+| 1 | 02-02 | Town centre hold countdown | **79.5** | 32.0 | 12.5 | 20.0 | 15.0 | S | low |
+| 2 | 18-01 | Cover arc display | **76.0** | 16.0 | 25.0 | 20.0 | 15.0 | S | low |
+| 3 | 16-07 | Armour and penetration data loading | **74.0** | 24.0 | 25.0 | 10.0 | 15.0 | M | low |
+| 4 | 09-03 | Centre-held countdown | **66.3** | 32.0 | 16.8 | 10.0 | 7.5 | M | medium |
+| 5 | 07-02 | Town centre objective | **65.8** | 40.0 | 8.2 | 10.0 | 7.5 | M | medium |
+| 6 | 16-05 | Infantry body armour factor | **62.5** | 16.0 | 25.0 | 20.0 | 1.5 | S | high |
+| 7 | 01-01 | Centre-held loss countdown | **62.0** | 32.0 | 12.5 | 10.0 | 7.5 | M | medium |
+| 8 | 10-04 | Daily wave from days.json | **62.0** | 32.0 | 12.5 | 10.0 | 7.5 | M | medium |
+| 9 | 13-01 | Day loop with carry-over | **60.2** | 40.0 | 16.8 | 2.0 | 1.5 | L | high |
+| 10 | 13-03 | Night screen and setup | **60.2** | 32.0 | 18.8 | 2.0 | 7.5 | L | medium |
+| 11 | 16-03 | Top-attack weapon direction | **60.2** | 16.0 | 16.8 | 20.0 | 7.5 | S | medium |
+| 12 | 14-02 | Town still stands check | **59.2** | 16.0 | 8.2 | 20.0 | 15.0 | S | low |
+| 13 | 02-09 | Shrinking nightly supply | **59.0** | 24.0 | 0.0 | 20.0 | 15.0 | S | low |
+| 14 | 04-07 | Vehicle turret traversal limits | **58.5** | 16.0 | 25.0 | 10.0 | 7.5 | M | medium |
+| 15 | 09-05 | Full retreat with confirm | **58.2** | 24.0 | 16.8 | 10.0 | 7.5 | M | medium |
+
+TARGET: 02-02  Town centre hold countdown  (score 79.5, rank 1)
+  A HUD countdown shows the 60 s timer while Russian infantry holds the town centre uncontested.
+  GDD: "Russian infantry is inside the town centre, and no living Ukrainian soldier is inside it, for **60 s** in a row (HUD countdown)"
+
+[5] requirements for CountdownHud:
+  - A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.
+  - A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.
+  - The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.
+  - When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.
+  - CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.
+  - An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.
+
+[5] write, try 1: already done in the resumed run, not repeated
+
+[6] re-scan after try 1
+  MET    A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.   <- ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+  MET    A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.   <- ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+  MET    The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.   <- ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs
+  MET    When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.   <- ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs
+  MET    CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.   <- ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs
+  MET    An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.   <- ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs
+  117 C# files indexed, 1 features judged
+  scan verdict for the feature: exists (Game/TownCentreZone.cs)
+  verify: scripts/unity_cli.sh test --platform play --filter CountdownHud
+  verify: FAIL
+  not accepted:
+    Compile / test output:
+    [unity_cli] 13:37:34 ERROR PlayMode ran 0 tests — harness is executing nothing
+    [unity_cli] 13:37:34 test done (play rc=5)
+
+[5] write, try 2 of 3 (claude -p, opus, tools Read/Grep/Glob/Edit/Write)
+
+[6] re-scan after try 2
+  MET    A TownCentreZone component exists that reports, each frame, whether any living Russian infantry soldier is inside the town centre and whether any living Ukrainian soldier is inside it, using UnitRegistry alive-soldier queries.   <- ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+  MET    A centreTimer field counts up only while Russian infantry is inside the zone and no living Ukrainian soldier is inside; it resets to zero as soon as a Ukrainian soldier is inside or no Russian infantry remains. The hold duration is 60 seconds, defined as a named constant or configurable field.   <- ELVATR GAME 1/Assets/Scripts/Game/TownCentreZone.cs
+  MET    The CountdownHud class is a MonoBehaviour that writes the remaining seconds (hold duration minus centreTimer) to a TextMeshProUGUI label, and the label is visible only while the timer is running and hidden when it is reset.   <- ELVATR GAME 1/Assets/Scripts/UI/CountdownHud.cs
+  MET    When centreTimer reaches 60 s the zone raises an OnCentreHeld event exactly once, and the day-loss logic (BattleEndChecker) subscribes to it to record a 'centre held' day-lost outcome.   <- ELVATR GAME 1/Assets/Scripts/Game/BattleEndChecker.TownCentre.cs
+  MET    CountdownHud is hooked into the running game: it is created or added to the battle HUD (e.g. in HudFrame or MainHudUI) in a file other than CountdownHud.cs.   <- ELVATR GAME 1/Assets/Scripts/UI/HudFrame.cs
+  MET    An EditMode or PlayMode test exercises the countdown: it asserts the timer advances with Russian infantry alone in the zone, resets when a Ukrainian soldier enters, and fires OnCentreHeld after 60 s.   <- ELVATR GAME 1/Assets/Tests/PlayMode/TownCentreHoldTest.cs
+  117 C# files indexed, 1 features judged
+  scan verdict for the feature: exists (Game/TownCentreZone.cs)
+  verify: scripts/unity_cli.sh test --platform play --filter CountdownHud
+  verify: PASS
+
+STOP: every requirement met after try 2.
+cost $0.80   logs in ~/Projects/elvtr-assignments/assignment-5/outputs/run-20261116-133706
