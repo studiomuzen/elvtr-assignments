@@ -111,7 +111,8 @@ No manual fix was needed to make the code compile or the tests pass.
 
 - The end banner still reads "DEFEAT — enemy broke through" for a centre loss; only the event log says "DAY LOST". The banner needs its own text.
 - The requirements writer widened the feature from "HUD countdown" to the full loss rule (the battle really ends). That is what the GDD says, but it is more than the feature's "S, low risk" label, and it is why the feature stays on its branch behind a flag until the level data names a real town centre.
-- The first Unity verify ran only the tests matching the new class name. The full play-mode suite and the full battle gate were not run before this submission.
+- **Full gate, run after submission:** the battle check (Editor battle, Mac build, built-app battle) passed. In that default 10-minute battle, with no launch argument, the rule fired on its own at 580 game-seconds: the enemy held the map middle for 60 s and the day was lost. So the feature also works with the zone the agent chose, and it does change how a default battle can end.
+- The full play-mode suite gave no result: it hit the harness's 20-minute limit and was killed. Only the feature's own two tests are confirmed passing; whether the new rule breaks an older test is not known.
 - Rank 4 and rank 7 are the same feature read from other GDD files; the agent does not merge duplicates.
 
 ## Files
